@@ -76,7 +76,7 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange[400],
+        backgroundColor: const Color.fromARGB(255, 207, 144, 90),
         foregroundColor: Colors.white,
         title: Row(
           children: [
@@ -92,7 +92,7 @@ class ChatScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Stefan", 
+                  "Anna", 
                   style: TextStyle(fontSize: 13, color: Colors.white),
                 ),
               ],
