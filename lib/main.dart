@@ -18,7 +18,7 @@ class ChatApp extends StatelessWidget {
 class ChatScreen extends StatelessWidget {
   final List<Map<String, dynamic>> messages = [
     {
-      "text": "Hallo Anna,\nIk ben heel geintresseerd in deze fiets en zou er graag €75 voor bieden. Mijn zoon is bijna 3 jaar en ongeveer een meter. Denk je dat hij nog even vooruit kan met deze fiets? Ik werk zelf in Delft dus dat is lekker in de buurt.\n\nGroetjes, \n\Stefan",
+      "text": "Hallo Anna,\nIk ben heel geintresseerd in deze fiets en zou er graag €75 voor bieden. Mijn zoon is bijna 3 jaar en ongeveer een meter. Denk je dat hij nog even vooruit kan met deze fiets? Ik werk zelf in Delft dus dat is lekker in de buurt.\n\nGroetjes, \n\nStefan",
       "isMe": true,
       "time": "13:22"
     },
@@ -107,7 +107,7 @@ class ChatScreen extends StatelessWidget {
               padding: EdgeInsets.all(10),
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                bool isLastMessage = index == messages.length - 1;
+                //bool isLastMessage = index == messages.length - 1;
                 bool isMe = messages[index]['isMe'] ?? false;
                 String status = messages[index]['status'] ?? "verzonden";
                 Color checkColor = status == "gelezen" ? Colors.green : Colors.grey;
