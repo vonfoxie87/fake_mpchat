@@ -118,16 +118,23 @@ class ChatScreen extends StatelessWidget {
                     crossAxisAlignment:
                         isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 2),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isMe ? Colors.yellow[100] : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          messages[index]['text'],
-                          style: TextStyle(fontSize: 16),
+                      Align(
+                        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          alignment: Alignment.center,
+                          widthFactor: 0.8,  // Dit zorgt ervoor dat de breedte maximaal 80% is
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 2),
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isMe ? Colors.yellow[100] : Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              messages[index]['text'],
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
                         ),
                       ),
                       Padding(
@@ -148,6 +155,7 @@ class ChatScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+
                 );
               },
             ),
