@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html; // Voor web-geolocatie
-import 'dart:js' as js;
 import 'dart:convert';
 
 void main() {
@@ -212,7 +211,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               color: isMe ? const Color(0xFFFEF0C3) : const Color(0xFFFFFFFF),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
+                            child: SelectableText(
                               messages[index]['text'],
                               style: TextStyle(fontSize: 16),
                             ),
