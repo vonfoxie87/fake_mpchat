@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+import 'dart:html' as html; // Voor web-geolocatie
+import 'dart:js' as js;
+import 'dart:convert';
 
 void main() {
   runApp(ChatApp());
@@ -29,55 +30,55 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  String _street = 'Locatie ophalen...'; // Start met een bericht
+  final ScrollController _scrollController = ScrollController();
+  String _street = 'Locatie ophalen...';
+  String _city = 'Locatie ophalen...';
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+    if (html.window.navigator.geolocation != null) {
+      try {
+        // Haal de huidige positie op
+        html.Geoposition position = await html.window.navigator.geolocation.getCurrentPosition();
+        double latitude = position.coords!.latitude!.toDouble();
+        double longitude = position.coords!.longitude!.toDouble();
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      setState(() {_street = "Locatie niet beschikbaar";});
-      return;
-    }
+        // Gebruik JavaScript-fetch API voor de OSM Nominatim API-aanroep
+        final String url =
+            'https://nominatim.openstreetmap.org/reverse?lat=$latitude&lon=$longitude&format=json';
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        setState(() {
-          _street = "Toestemming geweigerd";
+        // JS interop om fetch te gebruiken
+        final response = await html.window.fetch(url, {
+          'method': 'GET',
+          'headers': {
+            'User-Agent': 'ChatApp/1.0'
+          }
         });
-        return;
+
+        final responseText = await response.text();
+        final data = jsonDecode(responseText);
+        setState(() {
+          _street = data['address']['road'] ?? "Dorpstraat";
+          _city = data['address']['city'] ?? " ";
+        });
+      } catch (e) {
+        setState(() {
+          _street = "Fout bij ophalen adres: $e";
+          _city = "Fout bij ophalen adres: $e";
+        });
       }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
+    } else {
       setState(() {
-        _street = "Locatie permanent geweigerd";
-      });
-      return;
-    }
-
-    // Verkrijg de huidige locatie
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
-
-    // Converteer de coördinaten naar een adres
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-
-    // Stel de straatnaam in als deze beschikbaar is
-    if (placemarks.isNotEmpty) {
-      setState(() {
-        _street = placemarks.first.street ?? "Onbekende straat";
+        _street = "Geolocatie niet ondersteund in deze browser";
+        _city = "Geolocatie niet ondersteund in deze browser";
       });
     }
   }
@@ -133,7 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "time": "14:29"
       },
       {
-        "text": "Adres is $_street. Dit is mijn nummer: 0652794628, bel maar of app maar als je in de buurt ben, Dan weet ik ongeveer hoelaat.",
+        "text": "Adres is aan de $_street te $_city. Dit is mijn nummer: 06-10794628, bel ff als je in de buurt ben, dan kom ik naar je toe.",
         "isMe": false,
         "time": "14:30"
       },
@@ -144,6 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "status": "gelezen"
       },
     ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFEDA566),
@@ -175,10 +177,8 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.white), // Drie puntjes rechtsboven
-            onPressed: () {
-              // Actie toevoegen, bijvoorbeeld een menu openen
-            },
+            icon: Icon(Icons.more_vert, color: Colors.white),
+            onPressed: () {},
           ),
         ],
       ),
@@ -186,6 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: EdgeInsets.all(10),
               itemCount: messages.length,
               itemBuilder: (context, index) {
@@ -203,7 +204,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                         child: FractionallySizedBox(
                           alignment: Alignment.center,
-                          widthFactor: 0.8,  // Dit zorgt ervoor dat de breedte maximaal 80% is
+                          widthFactor: 0.8,
                           child: Container(
                             margin: EdgeInsets.symmetric(vertical: 2),
                             padding: EdgeInsets.all(12),
@@ -227,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               messages[index]['time'],
                               style: TextStyle(fontSize: 12, color: Colors.grey),
                             ),
-                            if (isMe) ...[ 
+                            if (isMe) ...[
                               SizedBox(width: 5),
                               Icon(Icons.done_all, color: checkColor, size: 16),
                             ],
@@ -259,13 +260,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         color: const Color(0xFF0E4F85),
-                        borderRadius: BorderRadius.circular(12)
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
                         icon: Icon(Icons.send_sharp, size: 18, color: Colors.white),
                         onPressed: () {},
                         padding: EdgeInsets.all(8),
-                        constraints: BoxConstraints()
+                        constraints: BoxConstraints(),
                       ),
                     ),
                   ],
