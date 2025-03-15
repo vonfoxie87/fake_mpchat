@@ -13,8 +13,8 @@ const RESOURCES = {"canvaskit/skwasm.js": "ac0f73826b925320a1e9b0d3fd7da61c",
 "canvaskit/chromium/canvaskit.wasm": "ea5ab288728f7200f398f60089048b48",
 "canvaskit/chromium/canvaskit.js": "b7ba6d908089f706772b2007c37e6da4",
 "canvaskit/chromium/canvaskit.js.symbols": "e115ddcfad5f5b98a90e389433606502",
-"index.html": "4255157a6a1b41af8a166211f34d14f8",
-"/": "4255157a6a1b41af8a166211f34d14f8",
+"index.html": "d8750db5f1b4d53d96db8a2ed61bef2e",
+"/": "d8750db5f1b4d53d96db8a2ed61bef2e",
 "assets/NOTICES": "acdf096f470dcd8581bd2adffb991d0d",
 "assets/assets/images/bike.jpg": "4a3f023438a51816dec7653cdc00188a",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
@@ -36,7 +36,7 @@ const RESOURCES = {"canvaskit/skwasm.js": "ac0f73826b925320a1e9b0d3fd7da61c",
 "manifest.json": "88831569367b965f75043c581633ad1d",
 "favicon.53911c94.ico": "3e02874c4ddca5e5a8d2f2cdbad8c5ea",
 "favicon.png": "74e3cb6ca36021bd0150e7c4c98e9e70",
-"flutter_bootstrap.js": "0ba2617ee27f59e39b488764e0c8752c"};
+"flutter_bootstrap.js": "accb4d20a7d4203c52ebb03b35b94a9e"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
