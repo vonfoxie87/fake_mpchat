@@ -8,6 +8,13 @@ class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.grey,
+          surface: const Color(0xFFF8F6F7),
+          brightness: Brightness.light,
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       home: ChatScreen(),
     );
@@ -20,17 +27,19 @@ class ChatScreen extends StatelessWidget {
     {
       "text": "Hallo Anna,\nIk ben heel geintresseerd in deze fiets en zou er graag €75 voor bieden. Mijn zoon is bijna 3 jaar en ongeveer een meter. Denk je dat hij nog even vooruit kan met deze fiets? Ik werk zelf in Delft dus dat is lekker in de buurt.\n\nGroetjes, \n\nStefan",
       "isMe": true,
-      "time": "13:22"
+      "time": "13:22",
+      "status": "gelezen"
     },
     {
-      "text": "Ha Stefan,\n\nMijn zoon heeft ceze week een niewue fiets gekregen, Hij is ruim 4.5 jaar en heeft veel plezier van deze fiets gehad.\n\nHij zou nog langer met de fiets kunnen doen maar kreeg een fiets doorgeschoven uit de familie. Het stuur en zadel kunnen allebei omhoog gezet worden, dus zou zeker geen probleem moeten zijn.\n\n Anna",
+      "text": "Ha Stefan,\n\nMijn zoon heeft deze week een nieuwe fiets gekregen, hij is ruim 4.5 jaar en heeft veel plezier van deze fiets gehad.\n\nHij zou nog langer met de fiets kunnen doen maar kreeg een fiets doorgeschoven uit de familie. Het stuur en zadel kunnen allebei omhoog gezet worden, dus zou zeker geen probleem moeten zijn.\n\n Anna",
       "isMe": false,
       "time": "13:31"
     },
     {
       "text": "Oh super dat klinkt goed! Zou ik de fiets van je kunnen overnemen?",
       "isMe": true,
-      "time": "13:34"
+      "time": "13:34",
+      "status": "gelezen"
     },
     {
       "text": "Ik zou eventueel vandaag na mn werk door kunnen rijden, werk tot 16:15u. Ik hoor het wel.",
@@ -68,7 +77,7 @@ class ChatScreen extends StatelessWidget {
       "text": "Prima, tot morgen",
       "isMe": true,
       "time": "14:32",
-      "status": "verzonden"
+      "status": "gelezen"
     },
   ];
 
@@ -76,10 +85,14 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 207, 144, 90),
+        backgroundColor: const Color(0xFFEDA566),
         foregroundColor: Colors.white,
         title: Row(
           children: [
+            Transform.translate(
+              offset: Offset(-10, 0),
+              child: Icon(Icons.arrow_back_sharp, size: 25, color: Colors.white),
+            ),
             CircleAvatar(
               backgroundImage: AssetImage('images/bike.jpg'),
             ),
@@ -89,16 +102,24 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Text(
                   "Alpina Yabber 12 inch", 
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "Anna", 
-                  style: TextStyle(fontSize: 13, color: Colors.white),
+                  style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ],
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert, color: Colors.white), // Drie puntjes rechtsboven
+            onPressed: () {
+              // Actie toevoegen, bijvoorbeeld een menu openen
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -127,7 +148,7 @@ class ChatScreen extends StatelessWidget {
                             margin: EdgeInsets.symmetric(vertical: 2),
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isMe ? Colors.yellow[100] : Colors.white,
+                              color: isMe ? const Color(0xFFFEF0C3) : const Color(0xFFFFFFFF),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -161,21 +182,59 @@ class ChatScreen extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            color: Colors.grey[200],
-            child: Row(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            color: Colors.white,
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Schrijf je bericht...",
-                      border: InputBorder.none,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Schrijf je bericht...",
+                          border: InputBorder.none,
+                        ),
+                      ),
                     ),
-                  ),
+                    Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0E4F85), 
+                        borderRadius: BorderRadius.circular(12)
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.send_sharp, size: 18, color: Colors.white),
+                        onPressed: () {},
+                        padding: EdgeInsets.all(8),
+                        constraints: BoxConstraints()
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
-                  onPressed: () {},
+                Divider(color: Colors.black, thickness: 0.2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(width: 10),
+                        Icon(Icons.local_shipping_outlined, color: const Color(0xFF0E4F85)),
+                        SizedBox(width: 20),
+                        Icon(Icons.photo_outlined, color: const Color(0xFF0E4F85)),
+                        SizedBox(width: 20),
+                        Icon(Icons.location_on_outlined, color: const Color(0xFF0E4F85)),
+                      ],
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () {}, 
+                      icon: Icon(Icons.handshake_outlined, color: const Color(0xFF0E4F85)),
+                      label: Text("Doe een voorstel", style: TextStyle(color: const Color(0xFF0E4F85))),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: const Color(0xFF0E4F85)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
