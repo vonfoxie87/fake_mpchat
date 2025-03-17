@@ -27,7 +27,7 @@ const RESOURCES = {"canvaskit/skwasm.js": "ac0f73826b925320a1e9b0d3fd7da61c",
 "assets/AssetManifest.json": "299a0ad1e999f8a7a20fc1543ed7384b",
 "version.json": "fc5773b4d7a12cd08cac196705b4c344",
 "flutter.js": "4b2350e14c6650ba82871f60906437ea",
-"main.dart.js": "fa6a2d9aaac61e6716daf94f04136eb3",
+"main.dart.js": "ca3579336db095c4ca9d1ae9cfc6187f",
 "images/bike.jpg": "4a3f023438a51816dec7653cdc00188a",
 "icons/Icon-maskable-512.png": "c860443311655b5d83db0cd6286222c6",
 "icons/Icon-192.png": "c860443311655b5d83db0cd6286222c6",
@@ -36,7 +36,7 @@ const RESOURCES = {"canvaskit/skwasm.js": "ac0f73826b925320a1e9b0d3fd7da61c",
 "manifest.json": "88831569367b965f75043c581633ad1d",
 "favicon.53911c94.ico": "3e02874c4ddca5e5a8d2f2cdbad8c5ea",
 "favicon.png": "74e3cb6ca36021bd0150e7c4c98e9e70",
-"flutter_bootstrap.js": "cd075f94b2c50bc905b7530317c247b0"};
+"flutter_bootstrap.js": "f492ad30eb73ad51702783f56d7d5a77"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
