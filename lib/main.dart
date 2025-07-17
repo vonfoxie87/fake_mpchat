@@ -218,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                             child: SelectableText(
                               messages[index]['text'],
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 14),
                             ),
                           ),
                         ),
