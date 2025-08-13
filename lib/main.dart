@@ -4,6 +4,7 @@ void main() {
   runApp(ChatApp());
 }
 
+
 class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -28,16 +29,84 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-
+  String? _lastInsertedDate; // Houdt de laatste datum bij
   String _street = "";
 
   final TextEditingController _streetController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  List<Map<String, dynamic>> messages = [];
 
   @override
   void initState() {
     super.initState();
 
     _streetController.text = _street;
+
+        messages = [
+      {
+        "text":
+            "Hallo Anna,\nIk ben heel geintresseerd in deze fiets en zou er graag €75 voor bieden. Mijn zoon is bijna 3 jaar en ongeveer een meter. Denk je dat hij nog even vooruit kan met deze fiets? Ik werk zelf in Delft dus dat is lekker in de buurt.\n\nGroetjes, \n\nStefan",
+        "isMe": true,
+        "time": "13:22",
+        "status": "gelezen"
+      },
+      {
+        "text":
+            "Ha Stefan,\n\nMijn zoon heeft deze week een nieuwe fiets gekregen, hij is ruim 4.5 jaar en heeft veel plezier van deze fiets gehad.\n\nHij zou nog langer met de fiets kunnen doen maar kreeg een fiets doorgeschoven uit de familie. Het stuur en zadel kunnen allebei omhoog gezet worden, dus zou zeker geen probleem moeten zijn.\n\n Anna",
+        "isMe": false,
+        "time": "13:31"
+      },
+      {
+        "text": "Oh super dat klinkt goed! Zou ik de fiets van je kunnen overnemen?",
+        "isMe": true,
+        "time": "13:34",
+        "status": "gelezen"
+      },
+      {
+        "text": "Ik zou eventueel vandaag na mn werk door kunnen rijden, werk tot 16:15u. Ik hoor het wel.",
+        "isMe": false,
+        "time": "13:35"
+      },
+      {
+        "text": "Vandaag lukt niet, morgen kan wel. Is dat een optie?",
+        "isMe": false,
+        "time": "14:20"
+      },
+      {
+        "text": "Helemaal goed.",
+        "isMe": true,
+        "time": "14:26",
+        "status": "gelezen"
+      },
+      {
+        "text": "Wat is je adres? Wil je het geld contant of kan het ook via een tikkie?",
+        "isMe": true,
+        "time": "14:27",
+        "status": "gelezen"
+      },
+      {
+        "text": "Liefst digitaal met een qr code",
+        "isMe": false,
+        "time": "14:29"
+      },
+      {
+        "text": "Adres is $_street",
+        "isMe": false,
+        "time": "14:30"
+      },
+      {
+        "text": "06-10794628. Bel maar als je er bent, dan kom ik naar buiten. De bel is kapot",
+        "isMe": false,
+        "time": "14:30"
+      },
+      {
+        "text": "Prima, tot morgen",
+        "isMe": true,
+        "time": "14:32",
+        "status": "gelezen"
+      },
+    ];
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
@@ -46,11 +115,61 @@ class _ChatScreenState extends State<ChatScreen> {
       _showLocationDialog();
     });
   }
+  void _sendMessage() {
+  final text = _messageController.text.trim();
+  if (text.isEmpty) return;
+
+  final now = DateTime.now();
+  final formattedTime ="${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+  final months = [
+    '', // dummy zodat index 1 = januari
+    'januari',
+    'februari',
+    'maart',
+    'april',
+    'mei',
+    'juni',
+    'juli',
+    'augustus',
+    'september',
+    'oktober',
+    'november',
+    'december'
+  ];
+
+  final formattedDate = "${now.day} ${months[now.month]}";
+  print(formattedDate); // Bijvoorbeeld: 13 augustus
+
+  if (_lastInsertedDate != formattedDate) {
+    messages.add({
+      "text": formattedDate,
+      "isMe": false,
+      "time": "",
+      "status": "datum",
+    });
+    _lastInsertedDate = formattedDate; // Update de laatst ingevoegde datum
+  }
+  setState(() {
+
+    messages.add({
+      "text": text,
+      "isMe": true,
+      "time": formattedTime,
+      "status": "tijdelijk"
+    });
+    _messageController.clear();
+  });
+
+  // Scroll naar beneden zodat het nieuwe bericht zichtbaar is
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  });
+}
 
 Future<void> _showLocationDialog() async {
   await showDialog(
     context: context,
-    barrierDismissible: false, // gebruiker moet invullen
+    barrierDismissible: false,
     builder: (context) => AlertDialog(
       title: Text('Voer je locatie in'),
       content: Column(
@@ -59,10 +178,15 @@ Future<void> _showLocationDialog() async {
           TextField(
             controller: _streetController,
             decoration: InputDecoration(labelText: 'Straat'),
-            textInputAction: TextInputAction.done, // maakt Enter -> 'Done' op mobiel
+            textInputAction: TextInputAction.done,
             onSubmitted: (_) {
               setState(() {
                 _street = _streetController.text.trim();
+                for (var msg in messages) {
+                if (msg["text"].toString().startsWith("Adres is")) {
+                  msg["text"] = "Adres is $_street";
+                }
+              }
               });
               Navigator.of(context).pop();
             },
@@ -74,6 +198,11 @@ Future<void> _showLocationDialog() async {
           onPressed: () {
             setState(() {
               _street = _streetController.text.trim();
+              for (var msg in messages) {
+              if (msg["text"].toString().startsWith("Adres is")) {
+                msg["text"] = "Adres is $_street";
+              }
+              }
             });
             Navigator.of(context).pop();
           },
@@ -128,71 +257,6 @@ Future<void> _showLocationDialog() async {
 
 @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> messages = [
-      {
-        "text":
-            "Hallo Anna,\nIk ben heel geintresseerd in deze fiets en zou er graag €75 voor bieden. Mijn zoon is bijna 3 jaar en ongeveer een meter. Denk je dat hij nog even vooruit kan met deze fiets? Ik werk zelf in Delft dus dat is lekker in de buurt.\n\nGroetjes, \n\nStefan",
-        "isMe": true,
-        "time": "13:22",
-        "status": "gelezen"
-      },
-      {
-        "text":
-            "Ha Stefan,\n\nMijn zoon heeft deze week een nieuwe fiets gekregen, hij is ruim 4.5 jaar en heeft veel plezier van deze fiets gehad.\n\nHij zou nog langer met de fiets kunnen doen maar kreeg een fiets doorgeschoven uit de familie. Het stuur en zadel kunnen allebei omhoog gezet worden, dus zou zeker geen probleem moeten zijn.\n\n Anna",
-        "isMe": false,
-        "time": "13:31"
-      },
-      {
-        "text": "Oh super dat klinkt goed! Zou ik de fiets van je kunnen overnemen?",
-        "isMe": true,
-        "time": "13:34",
-        "status": "gelezen"
-      },
-      {
-        "text": "Ik zou eventueel vandaag na mn werk door kunnen rijden, werk tot 16:15u. Ik hoor het wel.",
-        "isMe": false,
-        "time": "13:35"
-      },
-      {
-        "text": "Vandaag lukt niet, morgen kan wel. Is dat een optie?",
-        "isMe": false,
-        "time": "14:20"
-      },
-      {
-        "text": "Helemaal goed.",
-        "isMe": true,
-        "time": "14:26",
-        "status": "gelezen"
-      },
-      {
-        "text": "Wat is je adres? Wil je het geld contant of kan het ook via een tikkie?",
-        "isMe": true,
-        "time": "14:27",
-        "status": "gelezen"
-      },
-      {
-        "text": "Liefst digitaal met een qr code",
-        "isMe": false,
-        "time": "14:29"
-      },
-      {
-        "text": "Adres is $_street",
-        "isMe": false,
-        "time": "14:30"
-      },
-      {
-        "text": "06-10794628. Bel maar als je er bent, dan kom ik naar buiten.",
-        "isMe": false,
-        "time": "14:30"
-      },
-      {
-        "text": "Prima, tot morgen",
-        "isMe": true,
-        "time": "14:32",
-        "status": "gelezen"
-      },
-    ];
-
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Column(
@@ -250,6 +314,21 @@ Future<void> _showLocationDialog() async {
                 padding: EdgeInsets.all(10),
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
+                  final message = messages[index];
+                  if (message['status'] == 'datum') {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Center(
+                        child: Text(
+                          message['text'],
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 77, 77, 77),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                   bool isMe = messages[index]['isMe'] ?? false;
                   String status = messages[index]['status'] ?? "verzonden";
                   Color checkColor = status == "gelezen" ? Colors.green : Colors.grey;
@@ -288,6 +367,13 @@ Future<void> _showLocationDialog() async {
                                 messages[index]['time'],
                                 style: TextStyle(fontSize: 12, color: Colors.grey),
                               ),
+                              if (isMe && status == "gelezen") ...[
+                                SizedBox(width: 5),
+                                Text(
+                                  "Gelezen",
+                                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
                               if (isMe) ...[
                                 SizedBox(width: 5),
                                 Icon(Icons.done_all, color: checkColor, size: 16),
@@ -310,10 +396,13 @@ Future<void> _showLocationDialog() async {
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: _messageController,
                           decoration: InputDecoration(
                             hintText: "Schrijf je bericht...",
                             border: InputBorder.none,
                           ),
+                          textInputAction: TextInputAction.send, // toont "Send" op toetsenbord
+                          onSubmitted: (_) => _sendMessage(), // Enter verstuurt bericht
                         ),
                       ),
                       Container(
@@ -324,7 +413,7 @@ Future<void> _showLocationDialog() async {
                         ),
                         child: IconButton(
                           icon: Icon(Icons.send_sharp, size: 18, color: Colors.white),
-                          onPressed: () {},
+                          onPressed: _sendMessage,
                           padding: EdgeInsets.all(8),
                           constraints: BoxConstraints(),
                         ),
