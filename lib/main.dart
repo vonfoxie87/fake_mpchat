@@ -47,36 +47,43 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _showLocationDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false, // gebruiker moet invullen
-      builder: (context) => AlertDialog(
-        title: Text('Voer je locatie in'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _streetController,
-              decoration: InputDecoration(labelText: 'Straat'),
-            ),
-
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
+Future<void> _showLocationDialog() async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false, // gebruiker moet invullen
+    builder: (context) => AlertDialog(
+      title: Text('Voer je locatie in'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _streetController,
+            decoration: InputDecoration(labelText: 'Straat'),
+            textInputAction: TextInputAction.done, // maakt Enter -> 'Done' op mobiel
+            onSubmitted: (_) {
               setState(() {
                 _street = _streetController.text.trim();
               });
               Navigator.of(context).pop();
             },
-            child: Text('Opslaan'),
           ),
         ],
       ),
-    );
-  }
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _street = _streetController.text.trim();
+            });
+            Navigator.of(context).pop();
+          },
+          child: Text('Opslaan'),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Future<bool> _onWillPop() async {
     bool shouldLeave = false;
