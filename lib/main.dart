@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:html' as html; // Voor web-geolocatie
-import 'dart:convert';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(ChatApp());
