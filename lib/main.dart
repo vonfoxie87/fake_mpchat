@@ -152,13 +152,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEDA566),
+        backgroundColor: Colors.white,
         foregroundColor: Colors.white,
         title: Row(
           children: [
             Transform.translate(
               offset: Offset(-10, 0),
-              child: Icon(Icons.arrow_back_sharp, size: 25, color: Colors.white),
+              child: Icon(Icons.arrow_back_sharp, size: 30, color: Colors.black),
             ),
             CircleAvatar(
               backgroundImage: AssetImage('images/bike.jpg'),
@@ -169,11 +169,11 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Text(
                   "Alpina Yabber 12 inch",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
                 Text(
                   "Anna",
-                  style: TextStyle(fontSize: 14, color: Colors.white),
+                  style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 65, 65, 65)),
                 ),
               ],
             ),
@@ -181,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.white),
+            icon: Icon(Icons.more_vert, size: 30, color: Colors.black),
             onPressed: () {},
           ),
         ],
@@ -213,12 +213,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             margin: EdgeInsets.symmetric(vertical: 2),
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isMe ? const Color(0xFFFEF0C3) : const Color(0xFFFFFFFF),
+                              color: isMe ? const Color.fromARGB(255,76,97,118) : const Color(0xFFFFFFFF),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: SelectableText(
                               messages[index]['text'],
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 14, color: isMe ? Colors.white : Colors.black),  
                             ),
                           ),
                         ),
