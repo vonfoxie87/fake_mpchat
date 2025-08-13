@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html; // Voor web-geolocatie
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(ChatApp());
@@ -12,8 +13,8 @@ class ChatApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.grey,
-          surface: const Color(0xFFF8F6F7),
+          seedColor: const Color.fromARGB(255, 255, 255, 255),
+          surface: const Color.fromARGB(255, 234, 234, 234),
           brightness: Brightness.light,
         ),
       ),
@@ -30,60 +31,98 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  String _street = 'Dorpstraat';
-  String _city = '';
+
+  String _street = "";
+
+  final TextEditingController _streetController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+
+    _streetController.text = _street;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+
+      // Toon de locatie popup direct na het eerste frame laden:
+      _showLocationDialog();
     });
   }
 
-  Future<void> _getCurrentLocation() async {
-    if (html.window.navigator.geolocation != null) {
-      try {
-        // Haal de huidige positie op
-        html.Geoposition position = await html.window.navigator.geolocation.getCurrentPosition();
-        double latitude = position.coords!.latitude!.toDouble();
-        double longitude = position.coords!.longitude!.toDouble();
+  Future<void> _showLocationDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // gebruiker moet invullen
+      builder: (context) => AlertDialog(
+        title: Text('Voer je locatie in'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _streetController,
+              decoration: InputDecoration(labelText: 'Straat'),
+            ),
 
-        // Gebruik JavaScript-fetch API voor de OSM Nominatim API-aanroep
-        final String url =
-            'https://nominatim.openstreetmap.org/reverse?lat=$latitude&lon=$longitude&format=json';
-
-        // JS interop om fetch te gebruiken
-        final response = await html.window.fetch(url, {
-          'method': 'GET',
-          'headers': {
-            'User-Agent': 'ChatApp/1.0'
-          }
-        });
-
-        final responseText = await response.text();
-        final data = jsonDecode(responseText);
-        setState(() {
-          _street = data['address']['road'] ?? "Dorpstraat";
-          _city = data['address']['city'] ?? "";
-        });
-      } catch (e) {
-        setState(() {
-          _street = "Fout bij ophalen adres: $e";
-          _city = "Fout bij ophalen adres: $e";
-        });
-      }
-    } else {
-      setState(() {
-        _street = "Geolocatie niet ondersteund in deze browser";
-        _city = "Geolocatie niet ondersteund in deze browser";
-      });
-    }
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _street = _streetController.text.trim();
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text('Opslaan'),
+          ),
+        ],
+      ),
+    );
   }
 
+  Future<bool> _onWillPop() async {
+    bool shouldLeave = false;
 
-  @override
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('Voer je locatie in'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _streetController,
+              decoration: InputDecoration(labelText: 'Straat'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Annuleer'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _street = _streetController.text.trim();
+              });
+              shouldLeave = true;
+              Navigator.of(context).pop();
+            },
+            child: Text('Opslaan en verlaten'),
+          ),
+        ],
+      ),
+    );
+
+    return shouldLeave;
+  }
+
+@override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> messages = [
       {
@@ -133,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "time": "14:29"
       },
       {
-        "text": "Adres is $_street $_city",
+        "text": "Adres is $_street",
         "isMe": false,
         "time": "14:30"
       },
@@ -150,160 +189,165 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            Transform.translate(
-              offset: Offset(-10, 0),
-              child: Icon(Icons.arrow_back_sharp, size: 30, color: Colors.black),
-            ),
-            CircleAvatar(
-              backgroundImage: AssetImage('images/bike.jpg'),
-            ),
-            SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Alpina Yabber 12 inch",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-                Text(
-                  "Anna",
-                  style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 65, 65, 65)),
-                ),
-              ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          surfaceTintColor: Colors.transparent,
+          title: Row(
+            children: [
+              Transform.translate(
+                offset: Offset(-10, 0),
+                child: Icon(Icons.arrow_back_sharp, size: 26, color: Colors.black),
+              ),
+              CircleAvatar(
+                backgroundImage: AssetImage('images/bike.jpg'),
+                backgroundColor: Colors.white,
+              ),
+              SizedBox(width: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Alpina Yabber 12 inch",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                  Text(
+                    "Anna",
+                    style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 65, 65, 65)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.more_vert, size: 26, color: Colors.black),
+              onPressed: () {},
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert, size: 30, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.all(10),
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                bool isMe = messages[index]['isMe'] ?? false;
-                String status = messages[index]['status'] ?? "verzonden";
-                Color checkColor = status == "gelezen" ? Colors.green : Colors.grey;
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.all(10),
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  bool isMe = messages[index]['isMe'] ?? false;
+                  String status = messages[index]['status'] ?? "verzonden";
+                  Color checkColor = status == "gelezen" ? Colors.green : Colors.grey;
 
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment:
-                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                        child: FractionallySizedBox(
-                          alignment: Alignment.center,
-                          widthFactor: 0.8,
-                          child: Container(
-                            margin: EdgeInsets.symmetric(vertical: 2),
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: isMe ? const Color.fromARGB(255,76,97,118) : const Color(0xFFFFFFFF),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: SelectableText(
-                              messages[index]['text'],
-                              style: TextStyle(fontSize: 14, color: isMe ? Colors.white : Colors.black),  
+                  return Align(
+                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment:
+                          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: FractionallySizedBox(
+                            alignment: Alignment.center,
+                            widthFactor: 0.8,
+                            child: Container(
+                              margin: EdgeInsets.symmetric(vertical: 2),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isMe ? const Color.fromARGB(255, 76, 97, 118) : const Color(0xFFFFFFFF),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: SelectableText(
+                                messages[index]['text'],
+                                style: TextStyle(fontSize: 14, color: isMe ? Colors.white : Colors.black),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 8, left: 8, bottom: 10),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              messages[index]['time'],
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            if (isMe) ...[
-                              SizedBox(width: 5),
-                              Icon(Icons.done_all, color: checkColor, size: 16),
+                        Padding(
+                          padding: EdgeInsets.only(right: 8, left: 8, bottom: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                messages[index]['time'],
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              if (isMe) ...[
+                                SizedBox(width: 5),
+                                Icon(Icons.done_all, color: checkColor, size: 16),
+                              ],
                             ],
-                          ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "Schrijf je bericht...",
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0E4F85),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.send_sharp, size: 18, color: Colors.white),
+                          onPressed: () {},
+                          padding: EdgeInsets.all(8),
+                          constraints: BoxConstraints(),
                         ),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            color: Colors.white,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Schrijf je bericht...",
-                          border: InputBorder.none,
+                  Divider(color: Colors.black, thickness: 0.2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(width: 10),
+                          Icon(Icons.local_shipping_outlined, color: const Color(0xFF0E4F85)),
+                          SizedBox(width: 20),
+                          Icon(Icons.photo_outlined, color: const Color(0xFF0E4F85)),
+                          SizedBox(width: 20),
+                          Icon(Icons.location_on_outlined, color: const Color(0xFF0E4F85)),
+                        ],
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.handshake_outlined, color: const Color(0xFF0E4F85)),
+                        label: Text("Doe een voorstel", style: TextStyle(color: const Color(0xFF0E4F85))),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: const Color(0xFF0E4F85)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0E4F85),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.send_sharp, size: 18, color: Colors.white),
-                        onPressed: () {},
-                        padding: EdgeInsets.all(8),
-                        constraints: BoxConstraints(),
-                      ),
-                    ),
-                  ],
-                ),
-                Divider(color: Colors.black, thickness: 0.2),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(width: 10),
-                        Icon(Icons.local_shipping_outlined, color: const Color(0xFF0E4F85)),
-                        SizedBox(width: 20),
-                        Icon(Icons.photo_outlined, color: const Color(0xFF0E4F85)),
-                        SizedBox(width: 20),
-                        Icon(Icons.location_on_outlined, color: const Color(0xFF0E4F85)),
-                      ],
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(Icons.handshake_outlined, color: const Color(0xFF0E4F85)),
-                      label: Text("Doe een voorstel", style: TextStyle(color: const Color(0xFF0E4F85))),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: const Color(0xFF0E4F85)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
