@@ -4,7 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"images/bike.jpg": "4a3f023438a51816dec7653cdc00188a",
-"flutter_bootstrap.js": "1c7dc2be223c8a6cc6189436dc973e1b",
+"flutter_bootstrap.js": "e3553a9688afb22f0992925eefed6d6a",
 "flutter.js": "4b2350e14c6650ba82871f60906437ea",
 "favicon.53911c94.ico": "3e02874c4ddca5e5a8d2f2cdbad8c5ea",
 "favicon.png": "74e3cb6ca36021bd0150e7c4c98e9e70",
@@ -12,7 +12,7 @@ const RESOURCES = {"images/bike.jpg": "4a3f023438a51816dec7653cdc00188a",
 "icons/Icon-maskable-192.png": "c860443311655b5d83db0cd6286222c6",
 "icons/Icon-512.png": "c860443311655b5d83db0cd6286222c6",
 "icons/Icon-192.png": "c860443311655b5d83db0cd6286222c6",
-"manifest.json": "ccf959e080d4b6e58e4d86570ffb217a",
+"manifest.json": "0eb626902eb6124b64064d86b870c8e9",
 "version.json": "fc5773b4d7a12cd08cac196705b4c344",
 "canvaskit/skwasm.js": "ac0f73826b925320a1e9b0d3fd7da61c",
 "canvaskit/chromium/canvaskit.js": "b7ba6d908089f706772b2007c37e6da4",
