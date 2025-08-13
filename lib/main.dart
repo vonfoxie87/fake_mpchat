@@ -188,6 +188,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return WillPopScope(
       onWillPop: _onWillPop,
+      child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        height: 4,
+        width: double.infinity,
+        color: Colors.orange,
+      ),
+      Expanded(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -336,16 +345,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: const Color(0xFF0E4F85)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        ),
+       ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 }
